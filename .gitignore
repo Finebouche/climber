@@ -1,0 +1,23 @@
+# Project
+**/__pycache__/
+*.py[cod]
+.DS_Store
+.idea/
+.vscode/
+.venv/
+.ipynb_checkpoints/
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+CLAUDE.md
+
+# moves: copies of outputs (outputs/planning, outputs/learning) read by moves/replay.py and moves/policy.py
+/moves/trajectory.json
+/moves/policy.onnx
+
+# outputs: the results (JSON, CSV, robot logs) are tracked, not what can be regenerated or is heavy
+/outputs/learning/*/model.zip
+/outputs/learning/*/tensorboard/
+/outputs/identification/sim_*.npz
+*.png

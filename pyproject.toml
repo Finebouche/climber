@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "climber"
+version = "0.1.0"
+description = "Our climbing robot for the hackathon competition: planning, learning, perception, moves for the robot."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "climbing-sim",             # the competition's simulator (../simulator, editable): ClimbingSim, walls, cameras
+    "numpy>=1.26",
+]
+
+[project.optional-dependencies]
+modelling = ["pin>=3"]                                      # Pinocchio (pip name "pin")
+ik = ["mink>=0.0.5", "placo>=0.9.23"]                      # differential IK (MuJoCo), whole-body IK (URDF)
+learning = ["gymnasium>=1.0", "stable-baselines3>=2.3", "onnx", "onnxscript", "onnxruntime>=1.26"]   # ONNX: the policy in a move
+perception = ["opencv-python>=4.8"]                         # cv2.aruco, solvePnP
+notebooks = ["jupyterlab", "matplotlib"]
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.setuptools.packages.find]
+include = ["climber*"]
+
+[tool.uv.sources]
+climbing-sim = { path = "../simulator", editable = true }
+# the simulator's own sources (uv does not read those of a dependency)
+microban-model = { git = "https://github.com/Rhoban/microban_model", lfs = true }
+microban-sim = { git = "https://github.com/Rhoban/microban_sim" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
