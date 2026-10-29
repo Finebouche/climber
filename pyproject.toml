@@ -11,11 +11,12 @@ requires-python = ">=3.12"
 dependencies = [
     "climbing-sim",             # the competition's simulator (../simulator, editable): ClimbingSim, walls, cameras
     "numpy>=1.26",
+    "placo>=0.9.23",            # IK (climber.ik), the trunk free; the robot's version (microban)
 ]
 
 [project.optional-dependencies]
 modelling = ["pin>=3"]                                      # Pinocchio (pip name "pin")
-ik = ["mink>=0.0.5", "placo>=0.9.23"]                      # differential IK (MuJoCo), whole-body IK (URDF)
+ik = ["mink>=0.0.5"]                                        # differential IK on MuJoCo models (an alternative)
 learning = ["gymnasium>=1.0", "stable-baselines3>=2.3", "onnx", "onnxscript", "onnxruntime>=1.26"]   # ONNX: the policy in a move
 perception = ["opencv-python>=4.8"]                         # cv2.aruco, solvePnP
 notebooks = ["jupyterlab", "matplotlib"]

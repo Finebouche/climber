@@ -1,11 +1,11 @@
 """Quick checks of the parts that need an extra (skipped without it): modelling, perception, learning, the policy
-move."""
+and reach moves."""
 import inspect
 import sys
 
 import numpy as np
 import pytest
-from climbing_sim import load_moves
+from climbing_sim import load_moves, run_move
 
 from climber.common import MOVES, make_sim
 
@@ -55,3 +55,13 @@ def test_policy_move_matches_env():
     assert np.allclose(module.joint_limits(), env.sim.joint_range, atol=1e-6)
     assert np.array_equal(module.observe(env.sim.observation())[0], env._observe(env.sim.observation()))
     assert module.MAX_STEP == inspect.signature(ClimbEnv).parameters["max_step"].default
+
+
+def test_reach_move():
+    pytest.importorskip("placo")
+    sim = make_sim("N1")
+    sim.reset_hanging()
+    hooked = sim.hooked()
+    (move,) = load_moves(str(MOVES / "reach.py")).values()
+    run_move(move, sim, 8.0)
+    assert move.reachable and sim.hooked() == hooked

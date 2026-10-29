@@ -37,19 +37,18 @@ It builds on two repositories cloned next to this one:
 |:--|:--|:--|
 | `climber/common.py` | Paths, `make_sim` (the simulator with the project's defaults), `output_dir` | |
 | `climber/demo.py` | A first simulation to watch: the robot hanging sways its trunk, leans back, turns its head | |
+| `climber/reach.py` | A hand to a point and back into its hold (`--limb`, `--offset`, `--wall`) | |
 | `climber/robot` | Competition and training walls, the highest holds, `reached_top` | Microban, Onshape, onshape-to-robot |
 | `climber/modelling` | Pinocchio model of the climbing URDF with a floating base: balls, centre of mass | Pinocchio, MuJoCo |
-| `climber/ik` | Joint angles of a stance (one hold per limb), with a search over the trunk's pose | pink, placo, mink |
-| `climber/planning` | A* / Dijkstra over stances (`stances.py`), limb transfers in the simulator (`motion.py`) | Dijkstra, A*, RRT, RRT-Connect |
+| `climber/ik` | Joint angles of a stance (one hold per limb): placo, the trunk free (position and tilt), the body kept off the wall (MuJoCo distances) | pink, placo, mink |
+| `climber/planning` | A* / Dijkstra over stances, checked by the IK (`stances.py`; `--ik --greed 3`: N1-N3 in about a minute), limb transfers in the simulator (`motion.py`, not working yet), the plan shown without physics (`show.py`) | Dijkstra, A*, RRT, RRT-Connect |
 | `climber/learning` | Gymnasium environment (`env.py`), PPO and ONNX export (`train.py`), on the CPU; on a GPU: mjlab, as `../mjlab_microban` | Gymnasium, Stable Baselines3, mjlab |
 | `climber/identification` | Logs of a motion in the simulator and on the robot, their comparison | BAM |
 | `climber/perception` | Camera pose from the four ArUco corner markers | (rulebook) |
 | `climber/whole_body` | Servo loads (currents) | TSID, Crocoddyl |
-| `moves` | Moves for the robot: `replay.py` (a planned trajectory), `policy.py` (an ONNX policy) | |
+| `moves` | Moves for the robot: `reach.py` (a hand to a point and back, placo IK), `replay.py` (a planned trajectory), `policy.py` (an ONNX policy) | |
 | `outputs/<part>` | Results: plans, logs, policies, walls | |
 | `tests` | Quick tests (`test_extras.py` skips what needs a missing extra) | |
-| `ETAT_DES_TRAVAUX.md` | State of the work (in French): what was tried, what works, what is next | |
-| `1. Exploration.ipynb` | The walls, a plan, the simulator | |
 
 ---
 ## 🚀 Setup
@@ -65,7 +64,7 @@ cd climber
 uv sync --all-extras --group dev
 ```
 
-Extras: `modelling` (Pinocchio), `ik` (mink, placo: the robot's version), `learning` (Gymnasium, Stable Baselines3,
+placo (the IK, the robot's version) is a dependency. Extras: `modelling` (Pinocchio), `ik` (mink), `learning` (Gymnasium, Stable Baselines3,
 ONNX), `perception` (OpenCV), `notebooks`. TSID and Crocoddyl are not included: their pip wheels do not work with the
 Pinocchio that placo pins; take them from conda-forge in a separate environment.
 
@@ -74,9 +73,11 @@ Pinocchio that placo pins; take them from conda-forge in a separate environment.
 
 ```bash
 uv run mjpython -m climber.demo N2          # watch: the robot hanging sways and leans (Linux: python; --no-view)
+uv run mjpython -m climber.reach            # watch: a hand leaves its hold, goes to a point, comes back
 uv run python -m climber.robot              # the walls
 uv run python -m climber.ik N2              # which holds the limbs reach from the start
-uv run python -m climber.planning N2        # a hold sequence to the top (--ik: checked with the IK, --execute: played)
+uv run python -m climber.planning N2 --ik --greed 3    # a hold sequence to the top, checked with the IK (--execute: played)
+uv run mjpython -m climber.planning.show N2  # watch that plan, without physics: the IK's postures in MuJoCo's viewer
 uv run python -m climber.modelling          # Pinocchio against the simulator
 uv run python -m climber.perception         # the cameras' pose from the markers
 uv run python -m climber.identification     # a log in the simulator
@@ -86,7 +87,15 @@ uv run python -m climber.learning.train --wall N2 --steps 2000000 --envs 8    # 
 uv run pytest
 ```
 
-On the robot's program (in `../microban`), a move of `moves/` with the file it reads:
+On the robot's program (in `../microban`), a move of `moves/` in the dashboard (Moves -> reach -> Start, its ⚙ for
+the hand and the point):
+
+```bash
+cd ../microban && make sim PYTHON=mjpython WALL=N1 MOVES=../climber/moves/reach.py
+make dashboard HOST=127.0.0.1               # in another terminal
+```
+
+A move that reads a file next to it goes into `src/moves/` with that file:
 
 ```bash
 cp outputs/planning/N2_plan.json moves/trajectory.json

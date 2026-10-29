@@ -413,12 +413,12 @@ source = { editable = "." }
 dependencies = [
     { name = "climbing-sim" },
     { name = "numpy" },
+    { name = "placo" },
 ]
 
 [package.optional-dependencies]
 ik = [
     { name = "mink" },
-    { name = "placo" },
 ]
 learning = [
     { name = "gymnasium" },
@@ -456,7 +456,7 @@ requires-dist = [
     { name = "onnxscript", marker = "extra == 'learning'" },
     { name = "opencv-python", marker = "extra == 'perception'", specifier = ">=4.8" },
     { name = "pin", marker = "extra == 'modelling'", specifier = ">=3" },
-    { name = "placo", marker = "extra == 'ik'", specifier = ">=0.9.23" },
+    { name = "placo", specifier = ">=0.9.23" },
     { name = "stable-baselines3", marker = "extra == 'learning'", specifier = ">=2.3" },
 ]
 provides-extras = ["modelling", "ik", "learning", "perception", "notebooks"]

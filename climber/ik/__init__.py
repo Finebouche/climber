@@ -1,10 +1,11 @@
-"""Inverse kinematics: the joint angles of a stance (the four balls in four holds).
+"""Inverse kinematics: the joint angles of a stance (the four balls in four holds), the trunk free.
 
-Tools: pink, placo, mink (task-based IK: several tasks with priorities, joint limits, collisions); here we start with
-the simulator's own damped least squares (``sim.joint_angles_for``), the trunk pose searched on a small grid (a floating-base IK, e.g. placo, would choose it).
+Tools: placo (``solver.py``: a QP on tasks, on the climbing URDF; Rhoban's, on the robot too), pink, mink.  The trunk
+is placo's floating base: the solver chooses its position and tilt.  MuJoCo checks that the body stays off the wall.
 
     python -m climber.ik [N2]          # the start stance and the stances one hold up: reachable or not
 """
-from .stance import REACH_TOL, Posture, ball_targets, stance_posture, trunk_for
+from .solver import ClimberIK
+from .stance import CLEARANCE_MIN, REACH_TOL, Posture, ball_targets, stance_posture, trunk_for
 
-__all__ = ["REACH_TOL", "Posture", "ball_targets", "stance_posture", "trunk_for"]
+__all__ = ["CLEARANCE_MIN", "REACH_TOL", "ClimberIK", "Posture", "ball_targets", "stance_posture", "trunk_for"]
