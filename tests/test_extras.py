@@ -65,3 +65,17 @@ def test_reach_move():
     (move,) = load_moves(str(MOVES / "reach.py")).values()
     run_move(move, sim, 8.0)
     assert move.reachable and sim.hooked() == hooked
+
+
+def test_map_and_robot_pose():
+    pytest.importorskip("cv2")
+    from climber.perception import RobotMarker, compare, hold_shape, map_holds, marked_sim, robot_pose
+    sim = marked_sim("N1")
+    sim.reset(trunk_pos=[-0.8, -0.6, 0.3])          # the robot aside: the empty wall
+    images = {n: sim.render(n) for n in sim.cameras}
+    r = compare(map_holds(images, sim.cameras, hold_shape(sim.model, sim.data)), sim.wall)
+    assert r["exact"] == r["total"] and not r["extra"]
+    sim.reset_hanging()
+    pos, quat, n = robot_pose({n: sim.render(n) for n in sim.cameras}, sim.cameras, RobotMarker())
+    assert n == 2 and np.linalg.norm(pos - sim.trunk_pose()[0]) < 0.015
+    sim.close()

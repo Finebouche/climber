@@ -44,7 +44,7 @@ It builds on two repositories cloned next to this one:
 | `climber/planning` | A* / Dijkstra over stances, checked by the IK (`stances.py`; `--ik --greed 3`: N1-N3 in about a minute), limb transfers in the simulator (`motion.py`, not working yet), the plan shown without physics (`show.py`) | Dijkstra, A*, RRT, RRT-Connect |
 | `climber/learning` | Gymnasium environment (`env.py`), PPO and ONNX export (`train.py`), on the CPU; on a GPU: mjlab, as `../mjlab_microban` | Gymnasium, Stable Baselines3, mjlab |
 | `climber/identification` | Logs of a motion in the simulator and on the robot, their comparison | BAM |
-| `climber/perception` | Camera pose from the four ArUco corner markers | (rulebook) |
+| `climber/perception` | Camera pose from the four corner markers; the map of the wall (holds on the grid, from both cameras); the trunk's pose from the robot's marker (ID 5, triangulated) | (rulebook) |
 | `climber/whole_body` | Servo loads (currents) | TSID, Crocoddyl |
 | `moves` | Moves for the robot: `reach.py` (a hand to a point and back, placo IK), `replay.py` (a planned trajectory), `policy.py` (an ONNX policy) | |
 | `outputs/<part>` | Results: plans, logs, policies, walls | |
@@ -79,7 +79,9 @@ uv run python -m climber.ik N2              # which holds the limbs reach from t
 uv run python -m climber.planning N2 --ik --greed 3    # a hold sequence to the top, checked with the IK (--execute: played)
 uv run mjpython -m climber.planning.show N2  # watch that plan, without physics: the IK's postures in MuJoCo's viewer
 uv run python -m climber.modelling          # Pinocchio against the simulator
-uv run python -m climber.perception         # the cameras' pose from the markers
+uv run python -m climber.perception N2      # cameras, map of the wall, robot's pose: against the truth
+uv run python -m climber.perception.capture --list   # a real camera (then --index N: live, markers drawn, s saves)
+uv run python -m climber.perception.map_image outputs/perception/camera0.png --compare N1   # map of a real wall
 uv run python -m climber.identification     # a log in the simulator
 uv run python -m climber.whole_body         # the most loaded servos
 uv run python -m climber.learning           # random steps in the environment
